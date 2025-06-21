@@ -1,0 +1,43 @@
+- name: Install apt
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - git
+    - curl
+    - apt-transport-https
+    - ca-certificates
+    - gnupg
+    - lsb-release
+
+- name: Add key Docker GPG
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add repo Docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install Docker & docker-compose
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: latest
+    update_cache: yes
+
+- name: Clone repo from github
+  git:
+    repo: https://github.com/oukaise/devopstest.git
+    dest: /opt/devopstest
+    force: yes
+
+- name: Run docker compose
+  command: docker compose up -d
+  args:
+    chdir: /opt/devopstest
